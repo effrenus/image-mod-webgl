@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Learning WebGL</title>
+    <meta charset="UTF-8">
+
+    <script type="text/javascript" src="http://learningwebgl.com/lessons/lesson05/glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="http://learningwebgl.com/lessons/lesson05/webgl-utils.js"></script>
+
+    <script src="/web/js/webgl.js" type="text/javascript"></script>
+</head>
+
+
+<body>
+
+    <!--script class="shader" type="x-shader/x-vertex">
+        attribute vec2 aPosition;
+        attribute vec2 aTexCoord;
+
+        varying vec2 vTexCoord;
+        
+        void main() {
+           
+           gl_Position = vec4(aPosition, 0, 1);
+
+           vTexCoord = aTexCoord;
+
+        }
+    </script-->
+
+    <!--script class="shader" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec2 vTexCoord;
+
+        uniform sampler2D uTexture;
+
+        void main() {
+           gl_FragColor = texture2D(uTexture, vTexCoord);
+        }
+    </script-->
+
+    <!--script class="shader" type="x-shader/x-fragment">
+        precision highp float;
+
+        uniform float uTexWidth;
+        uniform float uTexHeight;
+        uniform float uTexelSizeX;
+        uniform float uTexelSizeY;
+        uniform sampler2D uTexture;
+
+        varying highp vec2 vTexCoord;
+        
+        vec4 tex2DBiLinear( sampler2D texture, vec2 texCoord_i )
+        {
+            vec4 p0q0 = texture2D(texture, texCoord_i);
+            vec4 p1q0 = texture2D(texture, texCoord_i + vec2(uTexelSizeX, 0));
+        
+            vec4 p0q1 = texture2D(texture, texCoord_i + vec2(0, uTexelSizeY));
+            vec4 p1q1 = texture2D(texture, texCoord_i + vec2(uTexelSizeX , uTexelSizeY));
+        
+            float a = fract( texCoord_i.x * uTexWidth );
+        
+            vec4 pInterp_q0 = mix( p0q0, p1q0, a );
+            vec4 pInterp_q1 = mix( p0q1, p1q1, a );
+        
+            float b = fract( texCoord_i.y * uTexHeight );
+
+            return mix( pInterp_q0, pInterp_q1, b );
+        }
+
+        void main()
+        {
+            gl_FragColor = tex2DBiLinear(uTexture, vTexCoord);
+        }
+    </script-->
+
+    <script class="shader" type="x-shader/x-vertex">
+    attribute vec2 position;
+    attribute vec2 inputTextureCoordinate;
+
+    uniform float texelWidthOffset;
+    uniform float texelHeightOffset;
+
+    varying vec2 centerTextureCoordinate;
+    varying vec2 oneStepLeftTextureCoordinate;
+    varying vec2 twoStepsLeftTextureCoordinate;
+    varying vec2 threeStepsLeftTextureCoordinate;
+    varying vec2 fourStepsLeftTextureCoordinate;
+    varying vec2 oneStepRightTextureCoordinate;
+    varying vec2 twoStepsRightTextureCoordinate;
+    varying vec2 threeStepsRightTextureCoordinate;
+    varying vec2 fourStepsRightTextureCoordinate;
+
+    void main()
+    {
+     gl_Position = vec4(position, 0, 1);
+
+     vec2 firstOffset = vec2(texelWidthOffset, texelHeightOffset);
+     vec2 secondOffset = vec2(2.0 * texelWidthOffset, 2.0 * texelHeightOffset);
+     vec2 thirdOffset = vec2(3.0 * texelWidthOffset, 3.0 * texelHeightOffset);
+     vec2 fourthOffset = vec2(4.0 * texelWidthOffset, 4.0 * texelHeightOffset);
+
+     centerTextureCoordinate = inputTextureCoordinate;
+     oneStepLeftTextureCoordinate = inputTextureCoordinate - firstOffset;
+     twoStepsLeftTextureCoordinate = inputTextureCoordinate - secondOffset;
+     threeStepsLeftTextureCoordinate = inputTextureCoordinate - thirdOffset;
+     fourStepsLeftTextureCoordinate = inputTextureCoordinate - fourthOffset;
+     oneStepRightTextureCoordinate = inputTextureCoordinate + firstOffset;
+     twoStepsRightTextureCoordinate = inputTextureCoordinate + secondOffset;
+     threeStepsRightTextureCoordinate = inputTextureCoordinate + thirdOffset;
+     fourStepsRightTextureCoordinate = inputTextureCoordinate + fourthOffset;
+    }
+    </script>
+
+    <script class="shader" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform sampler2D inputImageTexture;
+
+    varying vec2 centerTextureCoordinate;
+    varying vec2 oneStepLeftTextureCoordinate;
+    varying vec2 twoStepsLeftTextureCoordinate;
+    varying vec2 threeStepsLeftTextureCoordinate;
+    varying vec2 fourStepsLeftTextureCoordinate;
+    varying vec2 oneStepRightTextureCoordinate;
+    varying vec2 twoStepsRightTextureCoordinate;
+    varying vec2 threeStepsRightTextureCoordinate;
+    varying vec2 fourStepsRightTextureCoordinate;
+
+    // sinc(x) * sinc(x/a) = (a * sin(pi * x) * sin(pi * x / a)) / (pi^2 * x^2)
+    // Assuming a Lanczos constant of 2.0, and scaling values to max out at x = +/- 1.5
+
+    void main()
+    {
+     //lowp vec4 fragmentColor = texture2D(inputImageTexture, centerTextureCoordinate) * 0.38026;
+
+     //fragmentColor += texture2D(inputImageTexture, oneStepLeftTextureCoordinate) * 0.27667;
+     //fragmentColor += texture2D(inputImageTexture, oneStepRightTextureCoordinate) * 0.27667;
+
+     //fragmentColor += texture2D(inputImageTexture, twoStepsLeftTextureCoordinate) * 0.08074;
+     //fragmentColor += texture2D(inputImageTexture, twoStepsRightTextureCoordinate) * 0.08074;
+
+     //fragmentColor += texture2D(inputImageTexture, threeStepsLeftTextureCoordinate) * -0.02612;
+     //fragmentColor += texture2D(inputImageTexture, threeStepsRightTextureCoordinate) * -0.02612;
+
+     //fragmentColor += texture2D(inputImageTexture, fourStepsLeftTextureCoordinate) * -0.02143;
+     //fragmentColor += texture2D(inputImageTexture, fourStepsRightTextureCoordinate) * -0.02143;
+
+     gl_FragColor = texture2D(inputImageTexture, centerTextureCoordinate);
+    }
+    </script>
+
+</body>
+
+</html>
